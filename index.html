@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Parcial 1 - Luxury Edition</title>
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            min-height: 100vh;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #050811;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* Canvas background styling */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Centered main container */
+        .wrapper {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* Glassmorphism Card Container */
+        .glass-card {
+            background: rgba(10, 17, 32, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 242, 254, 0.18);
+            border-radius: 24px;
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.7),
+                0 0 40px rgba(0, 242, 254, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: cardEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 15%;
+            right: 15%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.8), transparent);
+        }
+
+        /* Imágenes (Logo y Foto) */
+        .logo-utd {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.4));
+        }
+
+        .student-photo {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 2px solid rgba(0, 242, 254, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.2);
+            margin-top: 20px;
+        }
+
+        /* Typography Styling */
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #ffffff 30%, #a5f3fc 70%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-weight: 300;
+            color: #94a3b8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+        }
+
+        h3.section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #00f2fe;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin: 35px 0 20px 0;
+            border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+            padding-bottom: 10px;
+            width: 100%;
+        }
+
+        /* Play Mario Link */
+        .mario-link {
+            display: inline-block;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ff3b3b;
+            text-decoration: none;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            padding: 12px 30px;
+            border: 1px solid rgba(255, 59, 59, 0.4);
+            border-radius: 30px;
+            background: rgba(255, 59, 59, 0.08);
+            text-shadow: 0 0 10px rgba(255, 59, 59, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .mario-link:hover {
+            color: #ffffff;
+            background: #ff3b3b;
+            box-shadow: 0 0 25px rgba(255, 59, 59, 0.8);
+            transform: scale(1.05);
+        }
+
+        /* Student Info Text */
+        .student-info {
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .student-info p {
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+
+        /* Buttons Container */
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .luxury-btn {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(79, 172, 254, 0.25));
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 16px 30px;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            border-radius: 50px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            width: 100%;
+            box-shadow: 0 8px 20px -5px rgba(0, 242, 254, 0.2);
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .luxury-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 50%;
+            height: 200%;
+            background: linear-gradient(60deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: rotate(25deg);
+            transition: all 0.7s ease;
+        }
+
+        .luxury-btn:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 242, 254, 0.8);
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(79, 172, 254, 0.45));
+            box-shadow: 0 15px 30px -5px rgba(0, 242, 254, 0.4), 0 0 20px rgba(0, 242, 254, 0.2);
+        }
+
+        .luxury-btn:hover::after {
+            left: 130%;
+        }
+
+        .luxury-btn:active {
+            transform: translateY(1px);
+        }
+
+        @keyframes cardEntrance {
+            0% { opacity: 0; transform: translateY(40px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Canvas Fijo -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Contenedor Principal -->
+    <div class="wrapper">
+        <main class="glass-card">
+            
+            <!-- Logo UTD -->
+            <img src="C:\Users\jadri\OneDrive\Desktop\Escuela\Practices\4b_practices_soto\Final_Evaluation\LOGO-UTD-NUEVO-2022_solo-01.png" alt="UTD Logo" class="logo-utd">
+            
+            <!-- Títulos Principales -->
+            <h1>PARTIAL 1 INDEX</h1>
+            <h2>QUALITY TOPICS FOR SOFTWARE DESIGN</h2>
+            
+            <!-- Enlace directo al repositorio de Mario -->
+            <a href="C:\Users\jadri\OneDrive\Desktop\Escuela\Practices\4b_practices_soto\mario\index.html" class="mario-link" target="_blank">PLAY MARIO</a>
+
+            <!-- SECCIÓN 1: FLOWCHART SECTION (Diagramas de Flujo Locales) -->
+            <h3 class="section-title">FLOWCHART SECTION</h3>
+            <div class="btn-container">
+                <button class="luxury-btn" onclick="window.open('C:/Users/jadri/OneDrive/Desktop/Escuela/Practices/4b_practices_soto/miempresaa.html', '_blank')">
+                    Diagram 1 - Principal Process
+                </button>
+                <button class="luxury-btn" onclick="window.open('C:/Users/jadri/OneDrive/Desktop/Escuela/Practices/4b_practices_soto/miempresaa.html', '_blank')">
+                    Diagram 2 - Money
+                </button>
+                <button class="luxury-btn" onclick="window.open('C:/Users/jadri/OneDrive/Desktop/Escuela/Practices/4b_practices_soto/customeer.html', '_blank')">
+                    Diagram 3 - Customer
+                </button>
+            </div>
+
+            <!-- SECCIÓN 2: USE CASE DIAGRAM SECTION (Diagramas de Draw.io) -->
+            <h3 class="section-title">USE CASE DIAGRAM SECTION</h3>
+            <div class="btn-container">
+                <button class="luxury-btn" onclick="window.open('https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=&dark=auto#R%3Cmxfile%3E%3Cdiagram%20id%3D%22NEEqb9juxWg7zpVPw6nU%22%20name%3D%22Page-1%22%3EzVjbUtswEP2aPKYT27FJHkm4dQoztKFT4E3Yi6MiW0aWE4ev78qSE98ogSFuX0B7dNucPVqtPHDmUX4uSLK84gGwgT0K8oFzMrBtd2rhXwVsNODZIw2EggYasnbAgr6AActhGQ0grQ2UnDNJkzro8zgGX9YwIgRf14c9clbfNSEhtICFT1gb%2FUUDudToxB3t8Aug4bLc2RqZnoiUgw2QLknA1xXIOR04c8G51K0onwNT3JW86Hlnr%2FRuHRMQy30mBPcX3%2B%2BDp9Xtz9nVyD99CWNxNuxYxUCp3JQcSMixb7aUEUPAwuZ6SSUsEuKrEWsMPGKpFPwJ5pxxgWDMY%2BybPVLGGhBhNIzR9HFHQHy2AiEpMn5sOiIaBGrrmeBZHIByf4SWdmtFWGbcGtgeU349cnS96rD3nPGyY5gWkjrGAfgz82Kdsh9bofp%2FQkkoSESUTEFpiaS8bGeqqfdBavVWepbxB52HvMKcIf8ceARSbHDIsqKPsRHDeqclu9RS3rA39SnEKDncrrwLNjZMvN8Re3uf2OM6eNTglZhXJIHyTuBrnOJxNUgrYD8gpKgSIpRncShgRzM8ZzThH6J00qbUct06pZM6pZZzKE6dvjlV2o15qg6QojWgacJTKumqNzIPJ1CvbzJPf4OfyYLIBYgV9WlvLDruoVic9n%2FMffpARV%2FMjT%2BDubk1e%2BDfbi%2BvvOH1bHZ3I6Y30%2BGRXheCVonQppJnwoe%2FrOW0KcdlF8Y0V2OFZz0ctRiCfDuH127FLo4FMIJJof47uggzU685LS7VkvNx88y79SW0o2ZWg%2FatGx%2BPxF5ptZAmNrOIHfuSV0uLS%2FIA7LpIjFyVGA9cSh511B6SJ11xqOaIKGGAldyH5O215e3Ub3%2FLOsBV1cnp%2BP%2FhdM6oKgYPRKnrNSi1D0Xp5B8mDMipvFWl8hfXMeZdYR65trFPclNKF8amYlyDoEiBKscrtfab2cfpKfs0A%2Bg1AqjJbGWf1kLjUXMhr9c0Vp7tTxHI%2BL0CidF5rZDp1tYSscd2Cew0UlibqvVBlUx7UsnRG3Xp3ioZO7WFHGvar0r2epTXH8dvVG0dz%2FDOoLz%2FPet0PGitRsHWeNBuP5G8I%2F%2BiuftSoonefW5yTv8A%3C%2Fdiagram%3E%3C%2Fmxfile%3E', '_blank')">
+                    Diagram 1 - Repair Service
+                </button>
+                
+                <button class="luxury-btn" onclick="window.open('https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=&dark=auto#R%3Cmxfile%3E%3Cdiagram%20id%3D%22NEEqb9juxWg7zpVPw6nU%22%20name%3D%22Page-1%22%3EzVhdd5s4EP01fsweQEDsx%2BB8dM8256SbbjftmwwTrFOBqBA27q%2FfkSXCl7Nx05j2wbHmSoyGe2dGimdkmdU3khbrW5EAn3lOUs%2FI5czz%2FLmPfzWwM0DgnBsglSwxkNsC9%2Bw7WNCxaMUSKHsLlRBcsaIPxiLPIVY9jEoptv1lj4L3dy1oCiPgPqZ8jP7LErU26DxwWvwdsHTd7Ow6diajzWILlGuaiG0HIlczspRCKDPK6iVwzV3Di3nu%2BpnZp8Ak5OqYB5Iv7z58Sb5uHv6Jbp346nuay%2BuzA14sVKpdw4GCGueitco4Ai4Ot2um4L6gsV6xReERK5UUX2EpuJAI5iLHueiRcT6AKGdpjmaMOwLi0QakYsj4hZ3IWJLorSMpqjwBHb6DlglrQ3llw5p5IddxlQXNewGH3ypNavQocnVW7lPqAhfga9Z7P808jlL9fcloKmlGDRF0n01ZsR8kYC2MHcMtmz2RZrOt8WBjwxeBusOiFeIGRAZK7nDJupMrvk2MbZtXXpNX9cDe9R%2BhNqvTJ8%2Bt8Diw2v9AHnjH5AH6wbKDZ%2FTvpAemegF%2F5iWWrkVG4n1C6XE%2FKZIqVkK%2FEn443bOYK%2FoqQudjQt0g6BM67xPqklMxSqZm9EIBVotmdcmZTtapODxdVoZTc3gDOUhqMhPKqqig1Mk5DY8kOBWPi6l5%2FBtitmKy6ZYJ27Sd0kArqV9pACLUWzoN7%2F5b8L50o5X46%2BH9bXh2F0WfP8rFx8WZvepAMrpjjIUQlYzhf3yRsWDo9t6a9mztqIQbyN2DPjv%2F8Ehjf97bDjlvgMvanq7G2nWtO5AMedBndOcAVlSmoF4u2t5BfUg1CZwqtukzc0gC%2B%2BidYMhZq6I%2F7EJB34UJ1D41EPIpjNdre1R%2F35cKDquMX%2BAx173tvKcr4HeiZIoJfetZCaVEduA6pMSg%2Fkb8XmUFB7xcvqpgwnHBkP4lxHVPcGYe5NT%2FfTj9mTP0ZUqDcECpdypK57%2ByBdVMmQ4UEGuaBnQeeNZu%2B482dh3jld2HTNR9hgKGAwENmaPuM3LkO0NH4aRtrKntN0kQ%2FwcT5EhNvYk0PX%2FhXnu0pj7pOSLuYlpNyS%2FUtFP0zmJQ9eGpqn4xTYaETtgv1uHN8egMGf4bGnpvlCFotj8pmeXt73Lk6j8%3D%3C%2Fdiagram%3E%3C%2Fmxfile%3E', '_blank')">
+                    Diagram 2 - Purchase Components
+                </button>
+
+
+                <button class="luxury-btn" onclick="window.open('https://viewer.diagrams.net/?tags=%7B%7D&lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=&dark=auto#R%3Cmxfile%3E%3Cdiagram%20id%3D%22NEEqb9juxWg7zpVPw6nU%22%20name%3D%22Page-1%22%3EzVhdc5s4FP01fswOIMDh0ThJ22kzk113d9O%2ByXCDNRXIK2Qb59fvxRIxAnfjeG3SF6N7JF3J537CiEzz6oOky8W9SIGPPCetRuRm5HlB5OJvDWw1EHqOBjLJUg25e2DGnsGAzbIVS6G0FiohuGJLG0xEUUCiLIxKKTb2sifB7VOXNIMeMEso76N%2Fs1QtNHodOHv8I7Bs0ZzsOmYmp81iA5QLmopNCyK3IzKVQig9yqsp8Jq7hhe97%2B4nsy8Xk1CoYzak3z%2F%2B%2Fj39sX78M753ktvnrJB3Vwe0GKhU24YDBRXOxQuVcwRcHG4WTMFsSZN6xQYNj1ippPgBU8GFRLAQBc7FT4zzDkQ5ywoUEzwREI%2FXIBVDxidmImdpWh8dS7EqUqiv76Ckr7WmfGWuNfJCXt%2BrXNLCunD4z6omNX4Shboqdy41wQX4N6udnmYeR1n9vGE0kzSnmoj6UbJSwQ5IAX8kQD4XvBTNkciyPlUrMFfD%2FwFVi0Rjhw8gclByi0sWLVfxjV9s9m7lNW5VdeStvYUap85eNO%2FtjgNj%2Bje4gXeMG6AejDr4iflb3oGevoRPRYmRa5Ce7WaCs4QpKm12T6Dxuk%2BjGwQ2jdc2jS65FI9kaB4nCjBEahannNUBNRSHl%2FPFcGgO%2F8KMlO48EfNRzgpRHoj7YVglwaVYjYZmtUmVKVs3aXKSwHIX8nd%2FQLKgz%2FXwJZ%2B21g3Ftn8OtqduPBefH7%2Fch1cPcfztq4y%2BRldjrRfSXnPRp1%2BsZAL%2FoYv0zYRqZ0Y0RbVlGzxAbh%2FrovmbRxr52052yLgBbipTVrW0bUsPIBnyUBfnVuVF2yWgXg9cywcOWU0Cp4qtbWYOmcBsfRAMOdtb0e9mosBWoS9qdnUM%2BXKN0217VI7fBQgOVzmfJEq025wvdA78QZRMMVG3O3OhlMgP9EFKdKKux%2B9tvuSAXeVJARP2A4bY7YfrXqBuHuTU%2F3U4%2FT919HVKg7BDqXcpSq%2FfMwVVTOkMFBAj6gQ0Djwj7%2FNPLWxbwonZhwyUfboGDDsG1GT2sk9Pke90FYWDprEmts%2FiIP4bHeRIm3oD2XT8Sm97tE19YikibjSsTck72rQV9E7UifrwzVHf6mKicWi3McSPztPGHCbRH8brQie0E0C3Gz3a67qvt6E3rNcdVb3P%2BW6Brw9szuSBV4wGmssu8j6vGEG3PJytvrvBr1HgrUgPLlXdo2FiknQ%2BuHmnxmTgdSqBd65KgOL%2Bm7Fevv%2FwTm7%2FBQ%3D%3D%3C%2Fdiagram%3E%3C%2Fmxfile%3E', '_blank')">
+                    Diagram 3 - Refund Service
+                </button>
+
+            </div>
+
+            <!-- Información del Estudiante -->
+            <div class="student-info">
+                <h3 class="section-title" style="border:none; margin: 0 0 10px 0;">STUDENT</h3>
+                <p>Jesus Adrian Soto Lucero</p>
+                <p>Email: jadriansolu@gmail.com</p>
+            </div>
+
+            <!-- Fotografía -->
+            <img src="C:\Users\jadri\OneDrive\Desktop\Escuela\Practices\4b_practices_soto\Final_Evaluation\MyPhoto.jpeg" alt="Student Photo" class="student-photo">
+
+        </main>
+    </div>
+
+    <!-- Script de Partículas -->
+    <script>
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 150 };
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.radius = Math.random() * 2 + 0.5;
+                this.vx = (Math.random() - 0.5) * 0.6;
+                this.vy = (Math.random() - 0.5) * 0.6;
+                this.alpha = Math.random() * 0.5 + 0.2;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 242, 254, ${this.alpha})`;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00f2fe';
+                ctx.fill();
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                if (mouse.x !== null && mouse.y !== null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        let force = (mouse.radius - distance) / mouse.radius;
+                        this.x -= (dx / distance) * force * 3;
+                        this.y -= (dy / distance) * force * 3;
+                    }
+                }
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const numberOfParticles = Math.floor((canvas.width * canvas.height) / 9000);
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function connectParticles() {
+            const maxDistance = 120;
+            for (let a = 0; a < particles.length; a++) {
+                for (let b = a + 1; b < particles.length; b++) {
+                    let dx = particles[a].x - particles[b].x;
+                    let dy = particles[a].y - particles[b].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < maxDistance) {
+                        let opacity = (1 - distance / maxDistance) * 0.25;
+                        ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[a].x, particles[a].y);
+                        ctx.lineTo(particles[b].x, particles[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+            connectParticles();
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
